@@ -1,32 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\E102199\\OneDrive - MFP Michelin\\Documents\\GitHub\\toolbox_m\\toolbox\\toolbox.csproj": {}
+    "C:\\Users\\cyril\\RiderProjects\\toolbox_m\\toolbox\\toolbox.csproj": {}
   },
   "projects": {
-    "C:\\Users\\E102199\\OneDrive - MFP Michelin\\Documents\\GitHub\\toolbox_m\\toolbox\\toolbox.csproj": {
+    "C:\\Users\\cyril\\RiderProjects\\toolbox_m\\toolbox\\toolbox.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\E102199\\OneDrive - MFP Michelin\\Documents\\GitHub\\toolbox_m\\toolbox\\toolbox.csproj",
+        "projectUniqueName": "C:\\Users\\cyril\\RiderProjects\\toolbox_m\\toolbox\\toolbox.csproj",
         "projectName": "toolbox",
-        "projectPath": "C:\\Users\\E102199\\OneDrive - MFP Michelin\\Documents\\GitHub\\toolbox_m\\toolbox\\toolbox.csproj",
-        "packagesPath": "C:\\Users\\E102199\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\E102199\\OneDrive - MFP Michelin\\Documents\\GitHub\\toolbox_m\\toolbox\\obj\\",
+        "projectPath": "C:\\Users\\cyril\\RiderProjects\\toolbox_m\\toolbox\\toolbox.csproj",
+        "packagesPath": "C:\\Users\\cyril\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\cyril\\RiderProjects\\toolbox_m\\toolbox\\obj\\",
         "projectStyle": "PackageReference",
-        "fallbackFolders": [
-          "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
-        ],
         "configFilePaths": [
-          "C:\\Users\\E102199\\AppData\\Roaming\\NuGet\\NuGet.Config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
-          "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
+          "C:\\Users\\cyril\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net8.0-windows"
         ],
         "sources": {
-          "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
-          "C:\\Program Files\\dotnet\\library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -44,8 +37,7 @@
           "enableAudit": "true",
           "auditLevel": "low",
           "auditMode": "direct"
-        },
-        "SdkAnalysisLevel": "9.0.200"
+        }
       },
       "frameworks": {
         "net8.0-windows7.0": {
@@ -69,7 +61,7 @@
               "privateAssets": "none"
             }
           },
-          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.201/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Users\\cyril\\.dotnet\\sdk\\8.0.406/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

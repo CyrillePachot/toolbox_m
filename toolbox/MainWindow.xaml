@@ -3,28 +3,105 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:toolbox"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
+        Title="MainWindow" Height="800" Width="1000">
     <Grid Margin="10">
-
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <Label Grid.Column="0">Names</Label>
-        <ListBox Grid.Row="1" x:Name="lstNames" />
-
-        <StackPanel Grid.Row="1" Grid.Column="1" Margin="5,0,0,0">
-            <TextBox x:Name="txtName" />
-            <Button x:Name="btnAdd" Margin="0,5,0,0" Click="ButtonAddName_Click">Add Name</Button>
-        </StackPanel>
-
+        <!-- FILES LIST -->
+        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Padding="5" Margin="5">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
+                <Button x:Name="BtnOpenFiles" Click="OpenFiles_Click" Padding="5" Margin="5">Open File(s)</Button>
+                <!-- Vraiment utile ? Si on a un tab pour chaque fichier--> 
+                <ListBox x:Name="LstBxFileNames" Padding="5" Margin="5" HorizontalAlignment="Stretch"/> 
+            </StackPanel>
+        </Border>
+   
+        <!-- EDITION OPTION --> 
+        <Border Grid.Row="1" Grid.Column="0" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Padding="5" Margin="5">
+            <StackPanel Orientation="Vertical" >
+                <Button x:Name="BtnCompare" Click="CompareFiles_Click" Padding="5" Margin="5">Compare</Button>
+                <TextBlock Text="Field Name" FontWeight="Bold" Padding="5" Margin="5" />
+                <TextBox x:Name="TxtBxFieldNameEdit" Padding="5" Margin="5"/><!--PlaceholderText="Field Name"-->
+                <TextBlock Text="Field Value" FontWeight="Bold" Padding="5" Margin="5"/>
+                <TextBox x:Name="TxtBxFieldValueEdit" Padding="5" Margin="5"/> 
+                <Button x:Name="BtnReplace" Click="Replace_Click" Padding="5" Margin="5">Replace</Button> 
+                <TextBlock Text="Field Parent" FontWeight="Bold" Padding="5" Margin="5"/>
+                <TextBox x:Name="TxtBxFieldParentEdit" Padding="5" Margin="5"/> 
+                <Button x:Name="BtnAdd" Click="Add_Click" Padding="5" Margin="5">Add</Button>  
+            </StackPanel>
+        </Border>
+        
+        <!-- FILES -->
+        <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Padding="5" Margin="5">
+            <StackPanel Orientation="Vertical">
+                <Grid HorizontalAlignment="Stretch" >
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    
+                    <TextBlock Grid.Column="0" Text="Files" FontWeight="Bold" Padding="5" Margin="5"/>
+                    <Button Grid.Column="1" x:Name="BtnClose" Click="Close_Click" Padding="5" Margin="5">Close</Button>
+                </Grid>
+                <TabControl x:Name="TabCtrlFiles" Padding="5" Margin="5">
+                     <!-- Se remplit quand on ajoute un fichier -->
+                     <!--
+                     <TabItem Header="File 1">
+                        <TextBox x:Name="TxtBxFile1" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto" />
+                    </TabItem>
+                    -->
+                </TabControl>
+                <!-- Collapse si non cliqué -->
+                <StackPanel Visibility="Collapsed" x:Name="StkPnlSelectedCompare">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Field parent" FontWeight="Bold" Padding="5" Margin="5" />
+                        <TextBox x:Name="TxtBxFieldParentFiles" AcceptsReturn="True" IsReadOnly="True" Padding="5" Margin="5"/> 
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="Field Name" FontWeight="Bold" Padding="5" Margin="5" />
+                        <TextBox x:Name="TxtBxFieldNameFiles" AcceptsReturn="True" IsReadOnly="True" Padding="5" Margin="5"/> 
+                        <TextBlock Text="Line Number" FontWeight="Bold" Padding="5" Margin="5" />
+                        <TextBox x:Name="TxtBxLineNumberFiles" AcceptsReturn="True" IsReadOnly="True" Padding="5" Margin="5"/> 
+                    </StackPanel>
+                    <StackPanel Orientation="Vertical" x:Name="StkPnlValuesFiles">
+                        <!-- Se remplit quand on clique sur une ligne avec un résultat de comparaison différent -->
+                        <!-- 
+                        <TextBlock Text="Value of File1" FontWeight="Bold" Margin="0,0,0,5" />
+                        <TextBox x:Name="TxtBxValueFile1Files" AcceptsReturn="True" IsReadOnly="True" Margin="0,5,0,5"/>
+                        -->
+                    </StackPanel>
+                </StackPanel>
+                <Button x:Name="BtnSave" Click="Save_Click" Padding="5" Margin="5">Save</Button>  
+            </StackPanel>
+        </Border>
+        
+        <!-- RESULTS -->
+        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Padding="5" Margin="5">
+            <StackPanel Orientation="Vertical">
+                <Grid HorizontalAlignment="Stretch">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*" />
+                        <ColumnDefinition Width="Auto" />
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="Results" FontWeight="Bold" Grid.Column="0" Padding="5" Margin="5"/>
+                    <StackPanel Orientation="Horizontal" Grid.Column="1">
+                        <Button x:Name="BtnCopy" Click="Copy_Click" Padding="5" Margin="5">Copy</Button>
+                        <Button x:Name="BtnExport" Click="Export_Click" Padding="5" Margin="5">Export</Button>
+                        <Button x:Name="BtnClear" Click="Clear_Click" Padding="5" Margin="5">Clear</Button>
+                    </StackPanel>
+                </Grid> 
+                <TextBox x:Name="TxtBxResult" AcceptsReturn="True" IsReadOnly="True" Padding="5" Margin="5"/>
+            </StackPanel>
+        </Border>
+        
     </Grid>
 </Window>

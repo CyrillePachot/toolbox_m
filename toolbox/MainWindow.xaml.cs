@@ -21,13 +21,41 @@ namespace toolbox
             InitializeComponent();
         }
 
-        private void ButtonAddName_Click(object sender, RoutedEventArgs e)
+        private void OpenFiles_Click(object sender, RoutedEventArgs e)
         {
-            if (!string.IsNullOrWhiteSpace(txtName.Text) && !lstNames.Items.Contains(txtName.Text))
-            {
-                lstNames.Items.Add(txtName.Text);
-                txtName.Clear();
-            }
         }
+        
+        private void CompareFiles_Click(object sender, RoutedEventArgs e)
+        {
+        }
+        
+        private void Replace_Click(object sender, RoutedEventArgs e)
+        {
+        }
+        private void Add_Click(object sender, RoutedEventArgs e)
+        {
+        }
+        
+        private void Close_Click(object sender, RoutedEventArgs e)
+        {
+        }
+        
+        private void Save_Click(object sender, RoutedEventArgs e)
+        {
+        }
+        
+        
+        private void Copy_Click(object sender, RoutedEventArgs e)
+        {
+        }
+        
+        private void Export_Click(object sender, RoutedEventArgs e)
+        {
+        }
+        
+        private void Clear_Click(object sender, RoutedEventArgs e)
+        {
+        }
+
     }
 }

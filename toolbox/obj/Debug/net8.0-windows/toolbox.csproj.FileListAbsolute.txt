@@ -39,3 +39,6 @@ C:\Users\cyril\RiderProjects\toolbox_m\toolbox\obj\Debug\net8.0-windows\refint\t
 C:\Users\cyril\RiderProjects\toolbox_m\toolbox\obj\Debug\net8.0-windows\toolbox.pdb
 C:\Users\cyril\RiderProjects\toolbox_m\toolbox\obj\Debug\net8.0-windows\toolbox.genruntimeconfig.cache
 C:\Users\cyril\RiderProjects\toolbox_m\toolbox\obj\Debug\net8.0-windows\ref\toolbox.dll
+C:\Users\cyril\RiderProjects\toolbox_m\toolbox\bin\Debug\net8.0-windows\Newtonsoft.Json.dll
+C:\Users\cyril\RiderProjects\toolbox_m\toolbox\obj\Debug\net8.0-windows\toolbox.csproj.AssemblyReference.cache
+C:\Users\cyril\RiderProjects\toolbox_m\toolbox\obj\Debug\net8.0-windows\toolbox.csproj.Up2Date

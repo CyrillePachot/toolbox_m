@@ -1,0 +1,15 @@
+﻿{
+  "name": "Double",
+  "description": "Double",
+  "version": "0.0.2",
+  "content": [
+    {
+      "type": "text",
+      "value": "quinze"
+    },
+    {
+      "type": "number",
+      "value": 15
+    }
+  ]
+}

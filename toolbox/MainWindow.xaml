@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
         Title="MainWindow" Height="800" Width="1000">
-    <Grid Margin="10">
+    <Grid x:Name="GrdMain" Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -17,11 +17,11 @@
         </Grid.ColumnDefinitions>
 
         <!-- FILES LIST -->
-        <Border Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Padding="5" Margin="5">
+        <Border Grid.Row="0" Grid.Column="0" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Padding="5" Margin="5">  <!-- Grid.ColumnSpan="2" -->
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
                 <Button x:Name="BtnOpenFiles" Click="OpenFiles_Click" Padding="5" Margin="5">Open File(s)</Button>
                 <!-- Vraiment utile ? Si on a un tab pour chaque fichier--> 
-                <ListBox x:Name="LstBxFileNames" Padding="5" Margin="5" HorizontalAlignment="Stretch"/> 
+                <!-- <ListBox x:Name="LstBxFileNames" Padding="5" Margin="5" HorizontalAlignment="Stretch"/> -->
             </StackPanel>
         </Border>
    
@@ -41,7 +41,7 @@
         </Border>
         
         <!-- FILES -->
-        <Border Grid.Row="1" Grid.Column="1" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Padding="5" Margin="5">
+        <Border Grid.Row="0" Grid.Column="1" Grid.RowSpan="2" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Padding="5" Margin="5">
             <StackPanel Orientation="Vertical">
                 <Grid HorizontalAlignment="Stretch" >
                     <Grid.ColumnDefinitions>
@@ -97,9 +97,13 @@
                         <Button x:Name="BtnCopy" Click="Copy_Click" Padding="5" Margin="5">Copy</Button>
                         <Button x:Name="BtnExport" Click="Export_Click" Padding="5" Margin="5">Export</Button>
                         <Button x:Name="BtnClear" Click="Clear_Click" Padding="5" Margin="5">Clear</Button>
+                        <Button x:Name="BtnReduce" Click="Reduce_Click" Padding="5" Margin="5" Visibility="Visible">Reduce</Button>
+                        <Button x:Name="BtnExpand" Click="Expand_Click" Padding="5" Margin="5" Visibility="Collapsed">Expand</Button>
                     </StackPanel>
                 </Grid> 
-                <TextBox x:Name="TxtBxResult" AcceptsReturn="True" IsReadOnly="True" Padding="5" Margin="5"/>
+                <TextBox x:Name="TxtBxResult" AcceptsReturn="True" IsReadOnly="True" 
+                         VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" MaxHeight="400"
+                         Padding="5" Margin="5"/>
             </StackPanel>
         </Border>
         

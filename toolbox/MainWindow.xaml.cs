@@ -11,6 +11,9 @@ namespace toolbox
     /// </summary>
     public partial class MainWindow
     {
+        private int _counter;
+        private string _logs = "";
+        
         public MainWindow()
         {
             InitializeComponent();
@@ -44,6 +47,107 @@ namespace toolbox
                 });
             }
         }
+
+        private void LogDifferences(string fileNameOne, string fileNameTwo, dynamic? dataOne, dynamic? dataTwo, string path)
+        {
+            // Log in terminal the path and the differences
+            
+            // Part path
+            _logs += "Différence found in " + path + ": \n";
+
+            var sizeNameOne = fileNameOne.Length;
+            var sizeNameTwo = fileNameTwo.Length;
+            var sizeDataOne = dataOne?.ToString().Length;
+            var sizeDataTwo = dataTwo?.ToString().Length;
+            
+            // Part names
+            _logs += "| " + fileNameOne;
+            if (sizeDataOne > sizeNameOne)
+            {
+                for (var i = 0; i < (sizeDataOne - sizeNameOne); i++)
+                {
+                    _logs += " ";
+                }
+            } 
+            _logs += " | " + fileNameTwo;
+            if (sizeDataTwo > sizeNameTwo)
+            {
+                for (var i = 0; i < (sizeDataTwo - sizeNameTwo); i++)
+                {
+                    _logs += " ";
+                }
+            }
+            _logs += " |\n";
+            
+            // Part data
+            _logs += "| " + dataOne?.ToString();
+            if (sizeNameOne > sizeDataOne)
+            {
+                for (var i = 0; i < (sizeNameOne - sizeDataOne); i++)
+                {
+                    _logs += " ";
+                }
+            }
+            _logs += " | " + dataTwo?.ToString();
+            if (sizeNameTwo > sizeDataTwo)
+            {
+                for (var i = 0; i < (sizeNameTwo - sizeDataTwo); i++)
+                {
+                    _logs += " ";
+                }
+            }
+            _logs += " |";
+        }
+        
+        private void CompareNestedDictionnary(string fileNameOne, string fileNameTwo, dynamic? dataOne, dynamic? dataTwo,
+            String path)
+        {
+            if (JToken.DeepEquals(dataOne, dataTwo)) return;
+
+            if (dataOne is JObject jObjectOne && dataTwo is JObject jObjectTwo)
+            {
+                var keys = new HashSet<string>(jObjectOne.Properties().Select(p => p.Name));
+                keys.UnionWith(jObjectTwo.Properties().Select(p => p.Name));
+
+                foreach (var key in keys)
+                {
+                    var newPath = string.IsNullOrEmpty(path) ? key : $"{path}/{key}";
+                    CompareNestedDictionnary(fileNameOne, fileNameTwo, jObjectOne[key], jObjectTwo[key], newPath);
+                }
+            }
+            else if (dataOne is JArray && dataTwo is JArray)
+            {
+                var size = Math.Min(dataOne.Count, dataTwo.Count);
+
+                for (int i = 0; i < size; i++)
+                {
+                    var endPath = "";
+                    if (dataOne[i] is JObject subData1)
+                    {
+                        var foundKeyName = false;
+                        foreach (var property in subData1.Properties())
+                        {
+                            if (property.Name != "OptionKey" && property.Name != "Key" && property.Name != "Name")
+                                continue;
+                            endPath = property.Value.ToString();
+                            foundKeyName = true;
+                            break;
+                        }
+                        if (!foundKeyName)
+                        {
+                            endPath = i.ToString();
+                        }
+                    }
+                    var newPath = string.IsNullOrEmpty(path) ? endPath : $"{path}/{endPath}";
+                    CompareNestedDictionnary(fileNameOne, fileNameTwo, dataOne[i], dataTwo[i], newPath);
+                }
+            }
+            else
+            {
+                _counter++;
+                LogDifferences(fileNameOne, fileNameTwo, dataOne, dataTwo, path);
+            }
+        }
         
         private void CompareFiles_Click(object sender, RoutedEventArgs e)
         {
@@ -60,160 +164,38 @@ namespace toolbox
             {
                 for (var j = i+1; j < TabCtrlFiles.Items.Count; j++)
                 {
-                    var tabItem1 = TabCtrlFiles.Items[i] as TabItem;
-                    var tabItem2 = TabCtrlFiles.Items[j] as TabItem;
+                    var tabItemOne = TabCtrlFiles.Items[i] as TabItem;
+                    var tabItemTwo = TabCtrlFiles.Items[j] as TabItem;
 
-                    if (tabItem1 == null || tabItem2 == null) continue;
+                    if (tabItemOne == null || tabItemTwo == null) continue;
 
-                    var textBox1 = tabItem1.Content as TextBox;
-                    var textBox2 = tabItem2.Content as TextBox;
+                    var textBoxOne = tabItemOne.Content as TextBox;
+                    var textBoxTwo = tabItemTwo.Content as TextBox;
 
-                    if (textBox1 == null || textBox2 == null) continue;
+                    if (textBoxOne == null || textBoxTwo == null) continue;
 
                     try
                     {
-                        var file1 = JObject.Parse(textBox1.Text);
-                        var file2 = JObject.Parse(textBox2.Text);
+                        var fileOne = JObject.Parse(textBoxOne.Text);
+                        var fileTwo = JObject.Parse(textBoxTwo.Text);
 
-                        var differences = GetJsonDifferences(tabItem1.Header.ToString(), tabItem2.Header.ToString(),file1, file2);
+                        _logs = "";
+                        CompareNestedDictionnary(tabItemOne.Header.ToString()!, tabItemTwo.Header.ToString()!, fileOne, fileTwo, "");
                         results.AppendLine("--------------------------------------------------------------------------------------");
-                        results.AppendLine("Results between " + tabItem1.Header + " and " + tabItem2.Header + ":");
-                        results.AppendLine(differences);
+                        results.AppendLine("Results between " + tabItemOne.Header + " and " + tabItemTwo.Header + ":");
+                        results.AppendLine(_logs);
+                        results.AppendLine("Count: " + _counter);
                         results.AppendLine();
                     }
                     catch (JsonException ex)
                     {
-                        results.AppendLine($"Error during reading file {tabItem1.Header} or {tabItem2.Header} : {ex.Message}");
+                        results.AppendLine($"Error during reading file {tabItemOne.Header} or {tabItemTwo.Header} : {ex.Message}");
                     }
                 }
             }
             TxtBxResult.Text = results.ToString();
         }
-        
-        private string GetJsonDifferences(string? tabItem1, string? tabItem2, JObject obj1, JObject obj2, StringBuilder? path = null, StringBuilder? diff = null)
-        {
-            diff ??= new StringBuilder();
-            // Loop through the properties of the first object
-            foreach (var property1 in obj1.Properties())
-            {
-                // Check if we have the same property in obj2
-                if (!obj2.ContainsKey(property1.Name))
-                {
-                    diff.AppendLine($"Propriété manquante dans le deuxième fichier : '{property1.Name}'");
-                    continue;
-                }
-                // Loop through the properties of the second object to compare them with the first
-                foreach (var property2 in obj2.Properties())
-                {
-                    // Check if the property names are the same
-                    if (property1.Name != property2.Name)
-                    {
-                        continue;
-                    }
-                    // Check if it is an array and loop through it
-                    if (property1.Value.Type == JTokenType.Array && property2.Value.Type == JTokenType.Array)
-                    {
-                        var p1 = (JArray)property1.Value;
-                        var p2 = (JArray)property2.Value;
-                        var size1 = p1.Count;
-                        var size2 = p2.Count;
-                        JObject? item1;
-                        JObject? item2;
-                        
-                        if (size1 == 0 || size2 == 0)continue;
-                        if (size1 > size2)
-                        {
-                            diff.AppendLine($"Le tableau dans {tabItem1} est plus grand que le tableau dans {tabItem2}");
-                            for (var i = 0; i < size1; i++)
-                            {
-                                if (p2.Count <= i)
-                                {
-                                    diff.AppendLine($"Le tableau dans {tabItem1} contient en plus: {p1[i]}");
-                                    continue;
-                                }
-                                item1 = (JObject)p1[i];
-                                if (p2.Contains(item1)) continue;
-                                item2 = (JObject)p2[i];
-                                GetJsonDifferences(
-                                    tabItem1,
-                                    tabItem2,
-                                    item1, 
-                                    item2, 
-                                    path, diff);
-                            }
-                        }
-                        else if (size1 < size2)
-                        {
-                            
-                            diff.AppendLine($"Le tableau dans {tabItem2} est plus grand que le tableau dans {tabItem1}");
-                            for (var i = 0; i < size2; i++)
-                            {
-                                if (p1.Count <= i)
-                                {
-                                    diff.AppendLine($"Le tableau dans {tabItem2} contient en plus: {p2[i]}");
-                                    continue;
-                                }
-                                item1 = (JObject)p1[i];
-                                if (p1.Contains(item1)) continue;
-                                item2 = (JObject)p2[i];
-                                GetJsonDifferences(
-                                    tabItem1,
-                                    tabItem2,
-                                    item1, 
-                                    item2, 
-                                    path, diff);
-                            }
-                        }
-                        else
-                        {
-                            for (var i = 0; i < size1; i++)
-                            {
-                                item1 = (JObject)p1[i];
-                                if (p1.Contains(item1)) continue;
-                                item2 = (JObject)p2[i];
-                                GetJsonDifferences(
-                                    tabItem1,
-                                    tabItem2,
-                                    item1, 
-                                    item2, 
-                                    path, diff);
-                            }
-                        }
-                    
-                    }
-                    // Compare the values 
-                    else if (!JToken.DeepEquals(property1.Value, property2.Value))
-                    {
-                        diff.AppendLine($"Différence trouvée sur la propriété '{property1.Name}':");
-                        diff.AppendLine($" --> Valeur 1 : {property1.Value}");
-                        diff.AppendLine($" --> Valeur 2 : {property2.Value}");
-                    }
-                }
-            }
-            // Check if we have any properties in obj2 that are not in obj1
-            foreach (var property in obj2.Properties())
-            {
-                if (!obj1.ContainsKey(property.Name))
-                {
-                    diff.AppendLine($"Propriété supplémentaire dans le deuxième fichier : '{property.Name}'");
-                }
-            }
-            // Check if we have any differences
-            if (diff.Length == 0)
-            {
-                diff.AppendLine("Nothing found.");
-            }
-            
-            return diff.ToString();
-        }
-        
-        private void Replace_Click(object sender, RoutedEventArgs e)
-        {
-        }
-        private void Add_Click(object sender, RoutedEventArgs e)
-        {
-        }
-        
+
         private void Close_Click(object sender, RoutedEventArgs e)
         {
             // Close the selected tab

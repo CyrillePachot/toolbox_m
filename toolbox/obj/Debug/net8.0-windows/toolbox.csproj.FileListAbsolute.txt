@@ -44,3 +44,17 @@ C:\Users\cyril\RiderProjects\toolbox_m\toolbox\obj\Debug\net8.0-windows\toolbox.
 C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\bin\Debug\net8.0-windows\Newtonsoft.Json.dll
 C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\obj\Debug\net8.0-windows\toolbox.csproj.AssemblyReference.cache
 C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\obj\Debug\net8.0-windows\toolbox.csproj.Up2Date
+C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\bin\Debug\net8.0-windows\EPPlus.dll
+C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\bin\Debug\net8.0-windows\EPPlus.Interfaces.dll
+C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\bin\Debug\net8.0-windows\Microsoft.Extensions.Configuration.dll
+C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\bin\Debug\net8.0-windows\Microsoft.Extensions.Configuration.Abstractions.dll
+C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\bin\Debug\net8.0-windows\Microsoft.Extensions.Configuration.FileExtensions.dll
+C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\bin\Debug\net8.0-windows\Microsoft.Extensions.Configuration.Json.dll
+C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\bin\Debug\net8.0-windows\Microsoft.Extensions.FileProviders.Abstractions.dll
+C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\bin\Debug\net8.0-windows\Microsoft.Extensions.FileProviders.Physical.dll
+C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\bin\Debug\net8.0-windows\Microsoft.Extensions.FileSystemGlobbing.dll
+C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\bin\Debug\net8.0-windows\Microsoft.Extensions.Primitives.dll
+C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\bin\Debug\net8.0-windows\Microsoft.IO.RecyclableMemoryStream.dll
+C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\bin\Debug\net8.0-windows\System.Security.Cryptography.Pkcs.dll
+C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\bin\Debug\net8.0-windows\System.Security.Cryptography.Xml.dll
+C:\Users\E102199\OneDrive - MFP Michelin\Documents\GitHub\toolbox_m\toolbox\bin\Debug\net8.0-windows\runtimes\win\lib\net8.0\System.Security.Cryptography.Pkcs.dll

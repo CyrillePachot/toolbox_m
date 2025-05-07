@@ -4,10 +4,11 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         mc:Ignorable="d"
-        Title="MainWindow" 
+        Title="Toolbox" 
         Height="800" 
-        Width="1422">
-    <Grid x:Name="GrdMain" Margin="10">
+        Width="1422"
+        Background="#27509b">
+    <Grid x:Name="GrdMain" Margin="10" >
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
@@ -45,9 +46,9 @@
         -->
         
         <!-- FILES -->
-        <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Padding="5" Margin="5" MaxHeight="600">
+        <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Padding="5" Margin="5" MaxHeight="600" Background="#0077db">
             <StackPanel Orientation="Vertical">
-                <Grid HorizontalAlignment="Stretch" MinHeight="30">
+                <Grid HorizontalAlignment="Stretch" MinHeight="30" >
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
@@ -61,7 +62,7 @@
                     <TextBlock Grid.Column="2" Text="Files" FontWeight="Bold" Padding="5" Margin="5"/>
                     <Button Grid.Column="3" x:Name="BtnCompare" Click="CompareFiles_Click" Padding="5" Margin="5">Compare</Button>
                 </Grid>
-                <TabControl x:Name="TabCtrlFiles" Padding="5" Margin="5" MaxHeight="525">
+                <TabControl x:Name="TabCtrlFiles" Padding="5" Margin="5" MaxHeight="525" >
                      <!-- Se remplit quand on ajoute un fichier -->
                 </TabControl>
                 <!-- <Button x:Name="BtnSave" Click="Save_Click" Padding="5" Margin="5">Save</Button> -->
@@ -89,7 +90,7 @@
         </Border>
         
         <!-- RESULTS -->
-        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Padding="5" Margin="5" >
+        <Border Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Padding="5" Margin="5" Background="#0077db">
             <StackPanel Orientation="Vertical">
                 <Grid HorizontalAlignment="Stretch" MinHeight="30">
                     <Grid.ColumnDefinitions>
@@ -98,9 +99,11 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Results" FontWeight="Bold" Grid.Column="0" Padding="5" Margin="5"/>
                     <StackPanel Orientation="Horizontal" Grid.Column="1">
+                        <!-- 
                         <Button x:Name="BtnCopy" Click="Copy_Click" Padding="5" Margin="5">Copy</Button>
-                        <Button x:Name="BtnExport" Click="Export_Click" Padding="5" Margin="5">Export</Button>
                         <Button x:Name="BtnClear" Click="Clear_Click" Padding="5" Margin="5">Clear</Button>
+                        -->
+                        <Button x:Name="BtnExport" Click="Export_Click" Padding="5" Margin="5">Export</Button>
                         <Button x:Name="BtnReduce" Click="Reduce_Click" Padding="5" Margin="5" Visibility="Visible">Reduce</Button>
                         <Button x:Name="BtnExpand" Click="Expand_Click" Padding="5" Margin="5" Visibility="Collapsed">Expand</Button>
                     </StackPanel>
@@ -108,9 +111,9 @@
                 <TabControl x:Name="TabCtrlResults" Padding="5" Margin="5" MaxHeight="525">
                     <!-- Se remplit quand on ajoute une comparaison -->
                      <TabItem Header="Logs">
-                        <TextBox x:Name="TxtBxResult" AcceptsReturn="True" IsReadOnly="True" 
-                             VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" Padding="5" Margin="5"/>
-                    </TabItem>
+                        <TextBox x:Name="TxtBxLogs" AcceptsReturn="True" IsReadOnly="True" 
+                             VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" Padding="5" Margin="5"/> 
+                     </TabItem>
                 </TabControl>
             </StackPanel>
         </Border>

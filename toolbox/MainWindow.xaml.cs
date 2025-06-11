@@ -5,20 +5,31 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using OfficeOpenXml;
 using System.IO;
+using toolbox.Model;
+using System.Collections.ObjectModel;
 
 namespace toolbox
 {
+
     /// <summary>
     /// Interaction logic for MainWindow.xaml
     /// </summary>
-    public partial class MainWindow
+    public partial class MainWindow : Window
     {
-        private int _counter;
-        // private string _logs = "";
-        
+        private List<Comparison> comparisons = new List<Comparison>();
+        private Comparison currentComparison;
+        private ObservableCollection<Difference> Differences {  get; set; }
+
         public MainWindow()
         {
             InitializeComponent();
+            Differences = new ObservableCollection<Difference>
+            {
+                new Difference("Path", "Value One", "Value Two") // Test
+            };
+
+
+            this.DataContext = this; // Set the DataContext for data binding
         }
 
         private void OpenFiles_Click(object sender, RoutedEventArgs e)
@@ -32,6 +43,7 @@ namespace toolbox
             if (openFileDialog.ShowDialog() != true) return;
             
             // For each selected file, fill the list on top, create a new tab and load the file content
+            var counter = 0;
             foreach (var file in openFileDialog.FileNames)
             {
                 var fileName = Path.GetFileName(file);
@@ -54,70 +66,166 @@ namespace toolbox
                 
                 // Add the new tab to the TabCtrlFiles
                 TabCtrlFiles.Items.Add(tabItem);
+                
+                // Print in logs the file opened
+                var logFile = $"File '{fileName}' opened successfully.";
+                TxtBxLogs.Text += logFile + "\n";
+                counter++;
             }
+            var logCounter = "" + counter + " files opened successfully.";
+            TxtBxLogs.Text += logCounter + "\n";
         }
         
-        /*
-        private void LogDifferences(string fileNameOne, string fileNameTwo, string dataOneStg, string dataTwoStg, string path)
-        {
-            // Log in terminal the path and the differences
-            
-            // Part path
-            _logs += "Différence found in " + path + ": \n";
-
-            var sizeNameOne = fileNameOne.Length;
-            var sizeNameTwo = fileNameTwo.Length;
-            var sizeDataOne = dataOneStg.Length;
-            var sizeDataTwo = dataTwoStg.Length;
-            
-            // Part names
-            _logs += "| " + fileNameOne;
-            if (sizeDataOne > sizeNameOne)
-            {
-                for (var i = 0; i < (sizeDataOne - sizeNameOne); i++)
-                {
-                    _logs += " ";
-                }
-            } 
-            _logs += " | " + fileNameTwo;
-            if (sizeDataTwo > sizeNameTwo)
-            {
-                for (var i = 0; i < (sizeDataTwo - sizeNameTwo); i++)
-                {
-                    _logs += " ";
-                }
-            }
-            _logs += " |\n";
-            
-            // Part data
-            _logs += "| " + dataOneStg;
-            if (sizeNameOne > sizeDataOne)
-            {
-                for (var i = 0; i < (sizeNameOne - sizeDataOne); i++)
-                {
-                    _logs += " ";
-                }
-            }
-            _logs += " | " + dataTwoStg;
-            if (sizeNameTwo > sizeDataTwo)
-            {
-                for (var i = 0; i < (sizeNameTwo - sizeDataTwo); i++)
-                {
-                    _logs += " ";
-                }
-            }
-            _logs += " |";
-        }
-        */
-
         private void FillLogs(string fileOneHeader, string fileTwoHeader, StringBuilder results)
         {
             // Display the logs results
             results.AppendLine("--------------------------------------------------------------------------------------");
             results.AppendLine("Results between " + fileOneHeader + " and " + fileTwoHeader + ":");
-            // results.AppendLine(_logs);
-            results.AppendLine("Count: " + _counter);
+            results.AppendLine(currentComparison.Logs);
+            results.AppendLine("Count: " + currentComparison.Count);
             results.AppendLine();
+        }
+
+        private void CompareJObject(JObject jObjectOne, JObject jObjectTwo, string path, Grid resultGrid)
+        {
+            // Get the properties of both objects
+            var keys = new HashSet<string>(jObjectOne.Properties().Select(p => p.Name));
+            // Link the properties of the second object
+            keys.UnionWith(jObjectTwo.Properties().Select(p => p.Name));
+
+            // Compare each property & change the path
+            foreach (var key in keys)
+            {
+                //if (key is "OptionKey" or "Key" or "Name") // Not sure useful but maybe necesary to don't show /key
+                //continue; // Skip the properties because normally used to identify a key "Value" in the JSON object and compare it.
+                var newPath = string.IsNullOrEmpty(path) ? key : $"{path}/{key}";
+                CompareNestedDictionary(jObjectOne[key], jObjectTwo[key], newPath, resultGrid);
+            }
+        }
+        
+        private void CompareJArray(JArray jArrayOne, JArray jArrayTwo, string path, Grid resultGrid)
+        {
+            // Compare each element in both list & change the path ----- NEW VERSION
+            foreach (var elementOne in jArrayOne)
+            {
+                var endPath = "";
+                //var isComplexObject = false;
+                if (elementOne is JObject subObjectOne)
+                {
+                    var keyNameOne = "";
+                    var keyValueOne = "";
+                    foreach (var property in subObjectOne.Properties())
+                    {
+                        switch (property.Name)
+                        {
+                            case "OptionKey" or "Key" or "Name":
+                                keyNameOne = property.Value.ToString();
+                                endPath = keyNameOne; // Use the key name as the end path
+                                break;
+                            case "Value":
+                                keyValueOne = property.Value.ToString();
+                                break;
+                        }
+                    }
+                    
+                    // Maybe if it's not found, we can call CompareNestedDictionary with the index
+                    // Because it's not a key-value pair but a complex object
+                    // => before call CompareNestedDictionary, we need to check if in list dataTwo it exists a similar object
+                    /*if (keyNameOne == "" || keyValueOne == "")
+                    {
+                        // !!! TO DETERMINE
+                        endPath = ""; // Use the index as the end path
+                        isComplexObject = true; // Mark it as a complex object
+                    }*/
+                    
+                    var existInBoth = false;
+                    var keyValueTwo = "";
+                    foreach (var elementTwo in jArrayTwo)
+                    {
+                        if (elementTwo is not JObject subObjectTwo) continue;
+                        /*if (isComplexObject)
+                        {
+                            // TO DETERMINE WHAT TO DO
+                            Console.WriteLine("Votre message ici");
+                        }*/
+                        
+                        foreach (var property in subObjectTwo.Properties())
+                        {
+                            switch (property.Name)
+                            {
+                                case "OptionKey" or "Key" or "Name":
+                                    var keyNameTwo = property.Value.ToString();
+                                    if (keyNameTwo == keyNameOne) existInBoth = true; // If the key names are different, we can stop checking this element
+                                    break;
+                                case "Value":
+                                    keyValueTwo = property.Value.ToString();
+                                    break;
+                            }
+                        }
+                        if (!existInBoth) continue; // We found a match, no need to continue to iterating through dataTwo
+                        if (keyValueOne == keyValueTwo) break; // If the values are equal, we can stop checking this element
+                        // Else we need to add a row in the result grid
+                        var newPath = string.IsNullOrEmpty(path) ? endPath : $"{path}/{endPath}";
+                        Difference difference = new Difference(newPath, keyValueTwo, keyValueOne);
+                        currentComparison.AddRowResultGrid(difference);
+                        Differences.Add(difference);
+                        break;
+                    }
+                }
+            }
+            
+            // If jArrayTwo is not empty, we need to check if there are elements in jArrayTwo that are not in jArrayOne
+            foreach (var elementTwo in jArrayTwo)
+            {
+                var endPath = "";
+                //var isComplexObject = false;
+                if (elementTwo is JObject subObjectTwo)
+                {
+                    var keyNameTwo = "";
+                    var keyValueTwo = "";
+                    foreach (var property in subObjectTwo.Properties())
+                    {
+                        switch (property.Name)
+                        {
+                            case "OptionKey" or "Key" or "Name":
+                                keyNameTwo = property.Value.ToString();
+                                endPath = keyNameTwo; // Use the key name as the end path
+                                break;
+                            case "Value":
+                                keyValueTwo = property.Value.ToString();
+                                break;
+                        }
+                    }
+                    
+                    var existInBoth = false;
+                    var keyValueOne = "";
+                    foreach (var elementOne in jArrayOne)
+                    {
+                        if (elementOne is not JObject subObjectOne) continue;
+                        
+                        foreach (var property in subObjectOne.Properties())
+                        {
+                            switch (property.Name)
+                            {
+                                case "OptionKey" or "Key" or "Name":
+                                    var keyNameOne = property.Value.ToString();
+                                    if (keyNameTwo == keyNameOne) existInBoth = true; // If the key names are different, we can stop checking this element
+                                    break;
+                                case "Value":
+                                    keyValueOne = property.Value.ToString();
+                                    break;
+                            }
+                        }
+                        if (existInBoth) break; // We found a match, no need to continue to iterating through dataTwo
+                    }
+                    if (existInBoth) break; // We found a match, no need to continue to iterating through dataTwo
+                    var newPath = string.IsNullOrEmpty(path) ? endPath : $"{path}/{endPath}";
+                    Difference difference = new Difference(newPath, keyValueTwo, keyValueOne);
+                    currentComparison.AddRowResultGrid(difference);
+                    Differences.Add(difference);
+                    break;
+                }
+            }
         }
         
         private void CompareNestedDictionary(dynamic? dataOne, dynamic? dataTwo,
@@ -131,216 +239,44 @@ namespace toolbox
                 // If both is JSON objects
                 case JObject jObjectOne when dataTwo is JObject jObjectTwo:
                 {
-                    // Get the properties of both objects
-                    var keys = new HashSet<string>(jObjectOne.Properties().Select(p => p.Name));
-                    // Link the properties of the second object
-                    keys.UnionWith(jObjectTwo.Properties().Select(p => p.Name));
-
-                    // Compare each property & change the path
-                    foreach (var key in keys)
-                    {
-                        var newPath = string.IsNullOrEmpty(path) ? key : $"{path}/{key}";
-                        CompareNestedDictionary(jObjectOne[key], jObjectTwo[key], newPath, resultGrid);
-                    }
-
+                    // Compare the two JSON objects
+                    CompareJObject(jObjectOne, jObjectTwo, path, resultGrid);
                     break;
                 }
                 
                 // If both is JSON arrays
-                case JArray when dataTwo is JArray:
+                case JArray jArrayOne when dataTwo is JArray jArrayTwo:
                 {
-                    var size = Math.Min(dataOne.Count, dataTwo.Count);
-
-                    // Compare each element in both list & change the path
-                    for (var i = 0; i < size; i++)
-                    {
-                        var endPath = "";
-                        if (dataOne[i] is JObject subData1)
-                        {
-                            var foundKeyName = false;
-                            foreach (var property in subData1.Properties())
-                            {
-                                // Skip the properties that are not needed because can be different in value
-                                if (property.Name != "OptionKey" && property.Name != "Key" && property.Name != "Name")
-                                    continue;
-                                endPath = property.Value.ToString();
-                                foundKeyName = true;
-                                break;
-                            }
-                            if (!foundKeyName)
-                            {
-                                endPath = i.ToString();
-                            }
-                        }
-                        var newPath = string.IsNullOrEmpty(path) ? endPath : $"{path}/{endPath}";
-                        CompareNestedDictionary(dataOne[i], dataTwo[i], newPath, resultGrid);
-                    }
-
+                    // Compare the two JSON arrays
+                    CompareJArray(jArrayOne, jArrayTwo, path, resultGrid);
                     break;
                 }
                 
                 // Else they are different 
                 default:
                 {
-                    _counter++;
                     var dateOneStg = dataOne?.ToString() ?? "null";
                     var dateTwoStg = dataTwo?.ToString() ?? "null";
-                    // LogDifferences(fileNameOne, fileNameTwo, dateOneStg, dateTwoStg, path); 
-                    AddRowResultGrid(path, dateOneStg, dateTwoStg, resultGrid);
-                    break;
+                    Difference difference = new Difference(path, dateOneStg, dateTwoStg);
+                    currentComparison.AddRowResultGrid(difference);
+                    Differences.Add(difference);
+                        break;
                 }
             }
         }
 
-        private void ReplaceOrCreateTabItem(string fileOneHeader, string fileTwoHeader, Grid resultGrid)
+        private static string ChoosePathToExport()
         {
-            // Verify if result already exists
-            var isExist = false;
-            foreach (TabItem tabItem in TabCtrlResults.Items)
+            var saveFileDialog = new Microsoft.Win32.SaveFileDialog
             {
-                if (tabItem.Header.ToString() != fileOneHeader + " vs " + fileTwoHeader) continue;
-                isExist = true;
-                var sv = tabItem.Content as ScrollViewer;
-                sv!.Content = resultGrid;
-            }
+                Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*",
+                DefaultExt = ".xlsx"
+            };
+            if (saveFileDialog.ShowDialog() != true) return "";
+            var filePath = saveFileDialog.FileName;
+            return filePath;
+        }
 
-            // If not exist => Create a new tab for the result
-            if (!isExist)
-            {
-                var resultTab = new TabItem
-                {
-                    Header = fileOneHeader + " vs " + fileTwoHeader,
-                    Content = new ScrollViewer
-                    {
-                        VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
-                        HorizontalScrollBarVisibility = ScrollBarVisibility.Auto,
-                        Content = resultGrid
-                    }
-                };
-                // Add the new tab to the TabCtrlResults
-                TabCtrlResults.Items.Add(resultTab);
-            }
-        }
-        
-        private void AddRowResultGrid(string path, string dataOne, string dataTwo, Grid resultGrid)
-        {
-            // Create a new row in the result grid
-            resultGrid.RowDefinitions.Add(new RowDefinition());
-            
-            // Get the row index
-            var rowIndex = resultGrid.RowDefinitions.Count;
-            
-            // Add a background color to the row
-            var backgroundColor = rowIndex % 2 == 0 ? System.Windows.Media.Brushes.LightGray : System.Windows.Media.Brushes.LightSlateGray;
-            var backgroundRectangle = new System.Windows.Shapes.Rectangle { Fill = backgroundColor };
-            Grid.SetRow(backgroundRectangle, rowIndex);
-            Grid.SetColumnSpan(backgroundRectangle, 3);
-            resultGrid.Children.Add(backgroundRectangle);
-            
-            // Create a new text block for each column
-            var textBlockPath = new TextBlock
-            {
-                Text = path,
-                FontSize = 16,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Left
-            };
-            var textBlockDataOne = new TextBlock
-            {
-                Text = dataOne,
-                FontSize = 16,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Left
-            };
-            var textBlockDataTwo = new TextBlock
-            {
-                Text = dataTwo,
-                FontSize = 16,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Left
-            };
-            
-            // Set the position of the text blocks in the grid
-            Grid.SetRow(textBlockPath, rowIndex);
-            Grid.SetRow(textBlockDataOne, rowIndex);
-            Grid.SetRow(textBlockDataTwo, rowIndex);
-            Grid.SetColumn(textBlockPath, 0);
-            Grid.SetColumn(textBlockDataOne, 1);
-            Grid.SetColumn(textBlockDataTwo, 2);
-            resultGrid.Children.Add(textBlockPath);
-            resultGrid.Children.Add(textBlockDataOne);
-            resultGrid.Children.Add(textBlockDataTwo);
-        }
-        
-        private Grid GenerateResultGrid(string fileOneHeader, string fileTwoHeader)
-        {
-            // Create a new grid for the result
-            var resultGrid = new Grid
-            {
-                Margin = new Thickness(5),
-                // MaxWidth = 1400,
-                // Grid layout
-                ColumnDefinitions =
-                {
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                    new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) },
-                }, 
-                RowDefinitions =
-                {
-                    new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
-                    new RowDefinition { Height = new GridLength(1, GridUnitType.Star) },
-                },
-                // Column titles
-                Children =
-                {
-                    new TextBlock
-                    {
-                        Text = "Number of differences: " + _counter,
-                    },
-                    new TextBlock
-                    {
-                        Text = "PATH",
-                        FontSize = 24,
-                        FontWeight = FontWeights.Bold,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                                
-                    },
-                    new TextBlock
-                    {
-                        Text = fileOneHeader,
-                        FontSize = 24,
-                        FontWeight = FontWeights.Bold,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                    },
-                    new TextBlock
-                    {
-                        Text = fileTwoHeader,
-                        FontSize = 24,
-                        FontWeight = FontWeights.Bold,
-                        VerticalAlignment = VerticalAlignment.Center,
-                        HorizontalAlignment = HorizontalAlignment.Center,
-                    },
-                }
-            };
-            
-            // -- Set the position of the numbers of differences
-            Grid.SetColumn(resultGrid.Children[0], 0);
-            Grid.SetRow(resultGrid.Children[0], 0);
-            
-            // -- Set position of the column titles
-            Grid.SetColumn(resultGrid.Children[1], 0);
-            Grid.SetRow(resultGrid.Children[1], 1);
-            Grid.SetColumn(resultGrid.Children[2], 1);
-            Grid.SetRow(resultGrid.Children[2], 1);
-            Grid.SetColumn(resultGrid.Children[3], 2);
-            Grid.SetRow(resultGrid.Children[3], 1);
-            
-            return resultGrid;
-        }
-        
         private void CompareFiles_Click(object sender, RoutedEventArgs e)
         {
             // Check if we have at least two files to compare
@@ -364,40 +300,39 @@ namespace toolbox
                     var scrollViewerTwo = tabItemTwo.Content as ScrollViewer;
 
                     if (scrollViewerOne?.Content is not TextBox textBoxOne || scrollViewerTwo?.Content is not TextBox textBoxTwo) continue;
-                    
-                    // Reset the counter and logs
-                    // _logs = "";
-                    _counter = 0;
-                
+                                    
                     // Get the file names
-                    var fileOneHeader = tabItemOne.Header.ToString() ?? "File 1";
-                    var fileTwoHeader = tabItemTwo.Header.ToString() ?? "File 2";
-                    
+                    var fileNameOne = tabItemOne.Header.ToString() ?? "File 1";
+                    var fileNameTwo = tabItemTwo.Header.ToString() ?? "File 2";
+
+                    // Initialize the current comparison
+                    currentComparison = new Comparison(fileNameOne, fileNameTwo);
+
                     try
                     {
                         // Parse the JSON files
                         var fileOne = JObject.Parse(textBoxOne.Text);
                         var fileTwo = JObject.Parse(textBoxTwo.Text);
-                        
-                        var resultGrid = GenerateResultGrid(fileOneHeader, fileTwoHeader);
+
+                        currentComparison.GenerateGridResult(fileNameOne, fileNameTwo);
                         
                         // Compare the files
-                        CompareNestedDictionary(fileOne, fileTwo, "", resultGrid);
+                        CompareNestedDictionary(fileOne, fileTwo, "", currentComparison.GridResult);
                         
                         // Modify the counter of differences
-                        var textBlock = resultGrid.Children.OfType<TextBlock>().FirstOrDefault(tb => tb.Text.Contains("Number of differences:"));
-                        if (textBlock != null) textBlock.Text = "Number of differences: " + _counter;
-                        
+                        var textBlock = currentComparison.GridResult.Children.OfType<TextBlock>().FirstOrDefault(tb => tb.Text.Contains("Number of differences:"));
+                        if (textBlock != null) textBlock.Text = "Number of differences: " + currentComparison.Count;
+
                         // Replace or create the tab item for the result
-                        ReplaceOrCreateTabItem(fileOneHeader, fileTwoHeader, resultGrid);
+                        currentComparison.ReplaceOrCreateTabItem(TabCtrlResults);
                     }
                     catch (JsonException ex)
                     {
-                        results.AppendLine($"Error during reading file {fileOneHeader} or {fileTwoHeader} : {ex.Message}");
+                        results.AppendLine($"Error during reading file {currentComparison.FileNameOne} or {currentComparison.FileNameTwo} : {ex.Message}");
                     }
                     
                     // Fill the logs
-                    FillLogs(fileOneHeader, fileTwoHeader, results);
+                    FillLogs(currentComparison.FileNameOne, currentComparison.FileNameTwo, results);
                 }
             }
             TxtBxLogs.Text += results.ToString();
@@ -405,18 +340,6 @@ namespace toolbox
             ((TabItem)TabCtrlResults.Items[1]!).IsSelected = true;
         }
 
-        private string ChoosePathToExport()
-        {
-            var saveFileDialog = new Microsoft.Win32.SaveFileDialog
-            {
-                Filter = "Excel files (*.xlsx)|*.xlsx|All files (*.*)|*.*",
-                DefaultExt = ".xlsx"
-            };
-            if (saveFileDialog.ShowDialog() != true) return "";
-            var filePath = saveFileDialog.FileName;
-            return filePath;
-        }
-        
         private void Export_Click(object sender, RoutedEventArgs e)
         {
             
@@ -470,6 +393,7 @@ namespace toolbox
             BtnReduce.Visibility = Visibility.Collapsed;
             BtnExpand.Visibility = Visibility.Visible;
             TabCtrlResults.Visibility = Visibility.Collapsed;
+            TabCtrlFiles.Visibility = Visibility.Visible;
         }
         
         private void Expand_Click(object sender, RoutedEventArgs e)
@@ -477,7 +401,15 @@ namespace toolbox
             BtnReduce.Visibility = Visibility.Visible;
             BtnExpand.Visibility = Visibility.Collapsed;
             TabCtrlResults.Visibility = Visibility.Visible;
+            TabCtrlFiles.Visibility = Visibility.Collapsed;
         }
         
+        private void Split_Click(object sender, RoutedEventArgs e)
+        {
+            BtnReduce.Visibility = Visibility.Visible;
+            BtnExpand.Visibility = Visibility.Visible;
+            TabCtrlResults.Visibility = Visibility.Visible;
+            TabCtrlFiles.Visibility = Visibility.Visible;
+        }
     }
 }

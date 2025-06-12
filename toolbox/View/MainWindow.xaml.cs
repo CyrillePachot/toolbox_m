@@ -7,6 +7,7 @@ using OfficeOpenXml;
 using System.IO;
 using toolbox.Model;
 using System.Collections.ObjectModel;
+using toolbox.ViewModel;
 
 namespace toolbox
 {
@@ -17,20 +18,17 @@ namespace toolbox
     public partial class MainWindow : Window
     {
         private List<Comparison> comparisons = new List<Comparison>();
-        private Comparison currentComparison;
-        private ObservableCollection<Difference> Differences {  get; set; }
+        private Comparison? currentComparison;
+
+        private MainViewModel viewModel;
 
         public MainWindow()
         {
             InitializeComponent();
-            Differences = new ObservableCollection<Difference>
-            {
-                new Difference("Path", "Value One", "Value Two") // Test
-            };
-
-
-            this.DataContext = this; // Set the DataContext for data binding
+            viewModel = new MainViewModel();
+            DataContext = viewModel;
         }
+
 
         private void OpenFiles_Click(object sender, RoutedEventArgs e)
         {
@@ -168,7 +166,7 @@ namespace toolbox
                         var newPath = string.IsNullOrEmpty(path) ? endPath : $"{path}/{endPath}";
                         Difference difference = new Difference(newPath, keyValueTwo, keyValueOne);
                         currentComparison.AddRowResultGrid(difference);
-                        Differences.Add(difference);
+                        viewModel.Differences.Add(difference);
                         break;
                     }
                 }
@@ -222,7 +220,7 @@ namespace toolbox
                     var newPath = string.IsNullOrEmpty(path) ? endPath : $"{path}/{endPath}";
                     Difference difference = new Difference(newPath, keyValueTwo, keyValueOne);
                     currentComparison.AddRowResultGrid(difference);
-                    Differences.Add(difference);
+                    viewModel.Differences.Add(difference);
                     break;
                 }
             }
@@ -259,8 +257,8 @@ namespace toolbox
                     var dateTwoStg = dataTwo?.ToString() ?? "null";
                     Difference difference = new Difference(path, dateOneStg, dateTwoStg);
                     currentComparison.AddRowResultGrid(difference);
-                    Differences.Add(difference);
-                        break;
+                    viewModel.Differences.Add(difference);
+                    break;
                 }
             }
         }

@@ -362,4 +362,6 @@ MigrationBackup/
 # Fody - auto-generated XML schema
 toolbox/.vs/ProjectEvaluation
 toolbox/.vs
+toolbox/.idea
 toolbox/obj
+toolbox/bin

@@ -360,6 +360,6 @@ MigrationBackup/
 .ionide/
 
 # Fody - auto-generated XML schema
-/toolbox/.vs/ProjectEvaluation
-/toolbox/.vs
-/toolbox/obj
+toolbox/.vs/ProjectEvaluation
+toolbox/.vs
+toolbox/obj

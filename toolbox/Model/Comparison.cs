@@ -158,59 +158,53 @@ namespace toolbox.Model
 
         public void AddRowResultGrid(Difference difference)
         {
-            // Increment the counter of differences
-            Count++;
-            Differences.Add(difference);
+            int rowIndex = GridResult.RowDefinitions.Count;
 
-            // Log the differences
-            FillLogs(difference);
-
-            // Create a new row in the result grid
+            // Ajoute une nouvelle ligne à la Grid
             GridResult.RowDefinitions.Add(new RowDefinition());
-
-            // Get the row index
-            var rowIndex = GridResult.RowDefinitions.Count;
 
             // Add a background color to the row
             var backgroundColor = rowIndex % 2 == 0 ? System.Windows.Media.Brushes.LightGray : System.Windows.Media.Brushes.LightSlateGray;
-            var backgroundRectangle = new System.Windows.Shapes.Rectangle { Fill = backgroundColor };
+            var backgroundRectangle = new System.Windows.Shapes.Rectangle { Fill = backgroundColor }; 
             Grid.SetRow(backgroundRectangle, rowIndex);
             Grid.SetColumnSpan(backgroundRectangle, 3);
             GridResult.Children.Add(backgroundRectangle);
 
-            // Create a new text block for each column
-            var textBlockPath = new TextBlock
-            {
+            // Ajoute les cellules (par exemple : Path, ValueOne, ValueTwo)
+            var tbPath = new TextBlock { 
                 Text = difference.Path,
                 FontSize = 16,
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Left
             };
-            var textBlockDataOne = new TextBlock
-            {
+            var tbValueOne = new TextBlock { 
                 Text = difference.ValueOne,
                 FontSize = 16,
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Left
             };
-            var textBlockDataTwo = new TextBlock
-            {
+            var tbValueTwo = new TextBlock { 
                 Text = difference.ValueTwo,
                 FontSize = 16,
                 VerticalAlignment = VerticalAlignment.Center,
                 HorizontalAlignment = HorizontalAlignment.Left
             };
 
-            // Set the position of the text blocks in the grid
-            Grid.SetRow(textBlockPath, rowIndex);
-            Grid.SetRow(textBlockDataOne, rowIndex);
-            Grid.SetRow(textBlockDataTwo, rowIndex);
-            Grid.SetColumn(textBlockPath, 0);
-            Grid.SetColumn(textBlockDataOne, 1);
-            Grid.SetColumn(textBlockDataTwo, 2);
-            GridResult.Children.Add(textBlockPath);
-            GridResult.Children.Add(textBlockDataOne);
-            GridResult.Children.Add(textBlockDataTwo);
+            Grid.SetRow(tbPath, rowIndex);
+            Grid.SetColumn(tbPath, 0);
+
+            Grid.SetRow(tbValueOne, rowIndex);
+            Grid.SetColumn(tbValueOne, 1);
+
+            Grid.SetRow(tbValueTwo, rowIndex);
+            Grid.SetColumn(tbValueTwo, 2);
+
+            GridResult.Children.Add(tbPath);
+            GridResult.Children.Add(tbValueOne);
+            GridResult.Children.Add(tbValueTwo);
+
+            // Mets à jour le compteur de différences
+            Count++;
         }
 
         public void ReplaceOrCreateTabItem(TabControl TabCtrlResults)

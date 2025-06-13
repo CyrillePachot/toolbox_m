@@ -18,18 +18,10 @@ namespace toolbox
     {
         private List<Comparison> comparisons = new List<Comparison>();
         private Comparison currentComparison;
-        private ObservableCollection<Difference> Differences {  get; set; }
 
         public MainWindow()
         {
             InitializeComponent();
-            Differences = new ObservableCollection<Difference>
-            {
-                new Difference("Path", "Value One", "Value Two") // Test
-            };
-
-
-            this.DataContext = this; // Set the DataContext for data binding
         }
 
         private void OpenFiles_Click(object sender, RoutedEventArgs e)
@@ -102,14 +94,12 @@ namespace toolbox
                 CompareNestedDictionary(jObjectOne[key], jObjectTwo[key], newPath, resultGrid);
             }
         }
-        
+
         private void CompareJArray(JArray jArrayOne, JArray jArrayTwo, string path, Grid resultGrid)
         {
-            // Compare each element in both list & change the path ----- NEW VERSION
             foreach (var elementOne in jArrayOne)
             {
                 var endPath = "";
-                //var isComplexObject = false;
                 if (elementOne is JObject subObjectOne)
                 {
                     var keyNameOne = "";
@@ -120,65 +110,57 @@ namespace toolbox
                         {
                             case "OptionKey" or "Key" or "Name":
                                 keyNameOne = property.Value.ToString();
-                                endPath = keyNameOne; // Use the key name as the end path
+                                endPath = keyNameOne;
                                 break;
                             case "Value":
                                 keyValueOne = property.Value.ToString();
                                 break;
                         }
                     }
-                    
-                    // Maybe if it's not found, we can call CompareNestedDictionary with the index
-                    // Because it's not a key-value pair but a complex object
-                    // => before call CompareNestedDictionary, we need to check if in list dataTwo it exists a similar object
-                    /*if (keyNameOne == "" || keyValueOne == "")
-                    {
-                        // !!! TO DETERMINE
-                        endPath = ""; // Use the index as the end path
-                        isComplexObject = true; // Mark it as a complex object
-                    }*/
-                    
-                    var existInBoth = false;
+
+                    var found = false;
                     var keyValueTwo = "";
                     foreach (var elementTwo in jArrayTwo)
                     {
                         if (elementTwo is not JObject subObjectTwo) continue;
-                        /*if (isComplexObject)
-                        {
-                            // TO DETERMINE WHAT TO DO
-                            Console.WriteLine("Votre message ici");
-                        }*/
-                        
+                        var keyNameTwo = "";
                         foreach (var property in subObjectTwo.Properties())
                         {
                             switch (property.Name)
                             {
                                 case "OptionKey" or "Key" or "Name":
-                                    var keyNameTwo = property.Value.ToString();
-                                    if (keyNameTwo == keyNameOne) existInBoth = true; // If the key names are different, we can stop checking this element
+                                    keyNameTwo = property.Value.ToString();
                                     break;
                                 case "Value":
                                     keyValueTwo = property.Value.ToString();
                                     break;
                             }
                         }
-                        if (!existInBoth) continue; // We found a match, no need to continue to iterating through dataTwo
-                        if (keyValueOne == keyValueTwo) break; // If the values are equal, we can stop checking this element
-                        // Else we need to add a row in the result grid
+                        if (keyNameTwo == keyNameOne)
+                        {
+                            found = true;
+                            if (keyValueOne != keyValueTwo)
+                            {
+                                var newPath = string.IsNullOrEmpty(path) ? endPath : $"{path}/{endPath}";
+                                Difference difference = new Difference(newPath, keyValueOne, keyValueTwo);
+                                currentComparison.AddRowResultGrid(difference);
+                            }
+                            break; // On a trouvé le matching, inutile de continuer
+                        }
+                    }
+                    if (!found)
+                    {
                         var newPath = string.IsNullOrEmpty(path) ? endPath : $"{path}/{endPath}";
-                        Difference difference = new Difference(newPath, keyValueTwo, keyValueOne);
+                        Difference difference = new Difference(newPath, keyValueOne, "");
                         currentComparison.AddRowResultGrid(difference);
-                        Differences.Add(difference);
-                        break;
                     }
                 }
             }
-            
-            // If jArrayTwo is not empty, we need to check if there are elements in jArrayTwo that are not in jArrayOne
+
+            // Même logique pour jArrayTwo pour les éléments non présents dans jArrayOne
             foreach (var elementTwo in jArrayTwo)
             {
                 var endPath = "";
-                //var isComplexObject = false;
                 if (elementTwo is JObject subObjectTwo)
                 {
                     var keyNameTwo = "";
@@ -189,45 +171,40 @@ namespace toolbox
                         {
                             case "OptionKey" or "Key" or "Name":
                                 keyNameTwo = property.Value.ToString();
-                                endPath = keyNameTwo; // Use the key name as the end path
+                                endPath = keyNameTwo;
                                 break;
                             case "Value":
                                 keyValueTwo = property.Value.ToString();
                                 break;
                         }
                     }
-                    
-                    var existInBoth = false;
-                    var keyValueOne = "";
+
+                    var found = false;
                     foreach (var elementOne in jArrayOne)
                     {
                         if (elementOne is not JObject subObjectOne) continue;
-                        
+                        var keyNameOne = "";
                         foreach (var property in subObjectOne.Properties())
                         {
-                            switch (property.Name)
-                            {
-                                case "OptionKey" or "Key" or "Name":
-                                    var keyNameOne = property.Value.ToString();
-                                    if (keyNameTwo == keyNameOne) existInBoth = true; // If the key names are different, we can stop checking this element
-                                    break;
-                                case "Value":
-                                    keyValueOne = property.Value.ToString();
-                                    break;
-                            }
+                            if (property.Name is "OptionKey" or "Key" or "Name")
+                                keyNameOne = property.Value.ToString();
                         }
-                        if (existInBoth) break; // We found a match, no need to continue to iterating through dataTwo
+                        if (keyNameTwo == keyNameOne)
+                        {
+                            found = true;
+                            break;
+                        }
                     }
-                    if (existInBoth) break; // We found a match, no need to continue to iterating through dataTwo
-                    var newPath = string.IsNullOrEmpty(path) ? endPath : $"{path}/{endPath}";
-                    Difference difference = new Difference(newPath, keyValueTwo, keyValueOne);
-                    currentComparison.AddRowResultGrid(difference);
-                    Differences.Add(difference);
-                    break;
+                    if (!found)
+                    {
+                        var newPath = string.IsNullOrEmpty(path) ? endPath : $"{path}/{endPath}";
+                        Difference difference = new Difference(newPath, "", keyValueTwo);
+                        currentComparison.AddRowResultGrid(difference);
+                    }
                 }
             }
         }
-        
+
         private void CompareNestedDictionary(dynamic? dataOne, dynamic? dataTwo,
             string path, Grid resultGrid)
         {
@@ -259,8 +236,7 @@ namespace toolbox
                     var dateTwoStg = dataTwo?.ToString() ?? "null";
                     Difference difference = new Difference(path, dateOneStg, dateTwoStg);
                     currentComparison.AddRowResultGrid(difference);
-                    Differences.Add(difference);
-                        break;
+                    break;
                 }
             }
         }
@@ -358,8 +334,20 @@ namespace toolbox
 
                 var scrollViewer = tab.Content as ScrollViewer;
                 var grid = scrollViewer?.Content as Grid;
+                var name = "";
+                if (tab.Header is StackPanel sp)
+                {
+                    if (sp.Children[0] is TextBlock tb)
+                    {
+                        name = tb.Text; 
+                    }
+                }
+                else
+                {
+                    name = tab.Header.ToString();
+                }
 
-                var worksheet = package.Workbook.Worksheets.Add(tab.Header.ToString());
+                var worksheet = package.Workbook.Worksheets.Add(name);
 
                 for (var i = 0; i < grid?.RowDefinitions.Count; i++)
                 {
@@ -376,9 +364,12 @@ namespace toolbox
 
             // Save the package to the specified file path
             package.SaveAs(new FileInfo(filePath));
-            
+
+            // Display a message box to inform the user
+            MessageBox.Show($"Results exported successfully to {filePath}", "Export Successful", MessageBoxButton.OK, MessageBoxImage.Information);
+
         }
-        
+
         private void Close_Click(object sender, RoutedEventArgs e)
         {
             // Close the selected tab

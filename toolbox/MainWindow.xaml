@@ -19,32 +19,6 @@
             <ColumnDefinition Width="*" />
         </Grid.ColumnDefinitions>
 
-        <!-- FILES LIST -->
-        <!--
-        <Border Grid.Row="0" Grid.Column="0" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Padding="5" Margin="5"> 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch">
-            </StackPanel>
-        </Border>
-        -->
-   
-        <!-- EDITION OPTION --> 
-        <!--
-        <Border Grid.Row="1" Grid.Column="0" BorderBrush="Black" BorderThickness="2" CornerRadius="5" Padding="5" Margin="5">
-            <StackPanel Orientation="Vertical" >
-                
-                <Button x:Name="BtnCompare" Click="CompareFiles_Click" Padding="5" Margin="5">Compare</Button>
-                <TextBlock Text="Field Name" FontWeight="Bold" Padding="5" Margin="5" />
-                <TextBox x:Name="TxtBxFieldNameEdit" Padding="5" Margin="5"/>
-                <TextBlock Text="Field Value" FontWeight="Bold" Padding="5" Margin="5"/>
-                <TextBox x:Name="TxtBxFieldValueEdit" Padding="5" Margin="5"/> 
-                <Button x:Name="BtnReplace" Click="Replace_Click" Padding="5" Margin="5">Replace</Button> 
-                <TextBlock Text="Field Parent" FontWeight="Bold" Padding="5" Margin="5"/>
-                <TextBox x:Name="TxtBxFieldParentEdit" Padding="5" Margin="5"/> 
-                <Button x:Name="BtnAdd" Click="Add_Click" Padding="5" Margin="5">Add</Button>  
-            </StackPanel>
-        </Border>
-        -->
-        
         <!-- FILES -->
         <Border Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Grid.ColumnSpan="2" 
                 BorderBrush="#fdea33" BorderThickness="2" CornerRadius="5" Background="#0077db"
@@ -82,10 +56,6 @@
                     </StackPanel>
                     <StackPanel Orientation="Vertical" x:Name="StkPnlValuesFiles">
                         <!-- Se remplit quand on clique sur une ligne avec un résultat de comparaison différent -->
-                        <!-- 
-                        <TextBlock Text="Value of File1" FontWeight="Bold" Margin="0,0,0,5" />
-                        <TextBox x:Name="TxtBxValueFile1Files" AcceptsReturn="True" IsReadOnly="True" Margin="0,5,0,5"/>
-                        -->
                     </StackPanel>
                 </StackPanel>
             </StackPanel>
@@ -103,10 +73,6 @@
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="Results" FontWeight="Bold" Grid.Column="0" Padding="5" Margin="5" Foreground="#fdea33"/>
                     <StackPanel Orientation="Horizontal" Grid.Column="1">
-                        <!-- 
-                        <Button x:Name="BtnCopy" Click="Copy_Click" Padding="5" Margin="5">Copy</Button>
-                        <Button x:Name="BtnClear" Click="Clear_Click" Padding="5" Margin="5">Clear</Button>
-                        -->
                         <Button x:Name="BtnExport" Click="Export_Click" Padding="5" Margin="5">Export</Button>
                         <Button x:Name="BtnSplit" Click="Split_Click" Padding="5" Margin="5" Visibility="Visible">Split</Button>
                         <Button x:Name="BtnReduce" Click="Reduce_Click" Padding="5" Margin="5" Visibility="Visible">Reduce</Button>
@@ -115,21 +81,9 @@
                 </Grid> 
                 <TabControl x:Name="TabCtrlResults" Padding="5" Margin="5" MaxHeight="850">
                     <!-- Se remplit quand on ajoute une comparaison -->
-                     <TabItem Header="Logs">
+                    <TabItem Header="Logs">
                         <TextBox x:Name="TxtBxLogs" AcceptsReturn="True" IsReadOnly="True" 
-                             VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" Padding="5" Margin="5"/> 
-                     </TabItem>
-                    <TabItem Header="Binder">
-                        <StackPanel>
-                            <TextBlock Text="{Binding DataContext.Differences.Count, RelativeSource={RelativeSource AncestorType=Window}}" />
-                            <DataGrid ItemsSource="{Binding DataContext.Differences, RelativeSource={RelativeSource AncestorType=Window}}" AutoGenerateColumns="False">
-                                <DataGrid.Columns>
-                                    <DataGridTextColumn Header="Path" Binding="{Binding Path}" />
-                                    <DataGridTextColumn Header="Value 1" Binding="{Binding ValueOne}" />
-                                    <DataGridTextColumn Header="Value 2" Binding="{Binding ValueTwo}" />
-                                </DataGrid.Columns>
-                            </DataGrid>
-                        </StackPanel>
+                            VerticalScrollBarVisibility="Auto" TextWrapping="Wrap" Padding="5" Margin="5"/>
                     </TabItem>
                 </TabControl>
             </StackPanel>
